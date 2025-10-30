@@ -4,11 +4,11 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fs-3 fw-bold mb-0">Actors</h2>
         </div>
-        <form class="d-flex align-items-center mb-4" method="post" action="<?= BASE_URL ?>/cast/actor">
+        <form class="d-flex align-items-center mb-4" method="GET" action="<?= BASE_URL ?>/cast/actor">
         <input 
             type="search" 
             class="form-control form-control-sm rounded-pill me-2 w-100 w-md-50" 
-            name="keyword" 
+            name="q" 
             id="keyword"
             value="<?= htmlspecialchars($data['keyword'] ?? '') ?>" 
             placeholder="Search actors..." 
@@ -56,4 +56,36 @@
             </table>
         </div>
     </div>
+    <?php if (isset($data['totalPages']) && $data['totalPages'] > 1): ?>
+    <nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        <!-- Previous -->
+        <li class="page-item <?= $data['currentPage'] <= 1 ? 'disabled' : '' ?>">
+        <a class="page-link" 
+            href="?q=<?= urlencode($data['keyword'] ?? '') ?>&page=<?= $data['currentPage'] - 1 ?>" 
+            aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+        </li>
+
+        <!-- Page numbers -->
+        <?php for ($i = 1; $i <= $data['totalPages']; $i++): ?>
+        <li class="page-item <?= $i == $data['currentPage'] ? 'active' : '' ?>">
+            <a class="page-link" href="?q=<?= urlencode($data['keyword'] ?? '') ?>&page=<?= $i ?>">
+            <?= $i ?>
+            </a>
+        </li>
+        <?php endfor; ?>
+
+        <!-- Next -->
+        <li class="page-item <?= $data['currentPage'] >= $data['totalPages'] ? 'disabled' : '' ?>">
+        <a class="page-link" 
+            href="?q=<?= urlencode($data['keyword'] ?? '') ?>&page=<?= $data['currentPage'] + 1 ?>" 
+            aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+        </li>
+    </ul>
+    </nav>
+    <?php endif; ?>
 </main>

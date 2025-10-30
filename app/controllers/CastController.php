@@ -69,26 +69,43 @@ class CastController extends Controller
             exit();
         }
 
-        // Get search keyword (default to empty string)
-        $keyword = $_POST['keyword'] ?? '';
+        // Use $_GET for search and pagination (better UX)
+        $keyword = trim($_GET['q'] ?? '');
+        $page = (int)($_GET['page'] ?? 1);
+        $page = max(1, $page);
+        $limit = 10;
 
-        // Fetch already assigned actor IDs for this movie
+        // Fetch assigned actor IDs for this movie
         $casts = $this->model('Movie')->getMovieCastsId($_SESSION['movieId']);
         $castIds = array_column($casts, 'actor_id');
 
-        // Fetch actors (filtered by keyword if provided)
+        // Initialize
+        $actors = [];
+        $total = 0;
+
         if (!empty($keyword)) {
-            $actors = $this->model('Actor')->searchActors($keyword);
+            $actors = $this->model('Actor')->searchActors($keyword, $page, $limit);
+            $total = $this->model('Actor')->getTotalSearchActors($keyword);
         } else {
-            $actors = $this->model('Actor')->getActors();
+            $actors = $this->model('Actor')->getActors($page, $limit);
+            $total = $this->model('Actor')->getTotalActors();
         }
+
+        $totalPages = ceil($total / $limit);
+        $previousPage = $page > 1 ? $page - 1 : 1;
+        $nextPage = $page < $totalPages ? $page + 1 : $totalPages;
 
         $data = [
             'actors' => $actors,
             'casts' => $castIds,
             'categories' => $this->model('Category')->getCategories(),
             'title' => "Search Actors",
-            'keyword' => $keyword // optional: to keep the search term in the input field
+            'keyword' => $keyword,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'previousPage' => $previousPage,
+            'nextPage' => $nextPage,
+            'movieId' => $_SESSION['movieId'] ?? null
         ];
 
         $this->view('includes/header', $data);
