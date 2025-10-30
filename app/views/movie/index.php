@@ -63,8 +63,11 @@
 
     <!-- Review Section -->
     <div class="bg-secondary-subtle bg-opacity-25 border border-secondary rounded-2 p-3 d-flex justify-content-between align-items-center">
-        <div class="bg-secondary px-3 py-1 rounded"><?= $_SESSION['user']['username'] ?></div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addReviewModal">Insert Review</button>
+        <div class="bg-secondary px-3 py-1 rounded"><?php if (isset($_SESSION['user'])) : ?><?= $_SESSION['user']['username'] ?><?php else : ?> User <?php endif ?></div>
+        <?php if (isset($_SESSION['user'])) : ?> <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addReviewModal">Insert Review</button>
+        <?php else : ?>
+            <a class="btn btn-primary" href="<?= BASE_URL?>/auth/login">Insert Review</a>
+        <?php endif ?>
     </div>
 
     <!-- Recent Reviewers -->
