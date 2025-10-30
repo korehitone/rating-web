@@ -12,10 +12,10 @@ class MovieController extends Controller
             exit();
         }
 
-        if (!isset($_SESSION['user'])) {
-            header('Location: ' . BASE_URL . '/auth/login');
-            exit();
-        }
+        // if (!isset($_SESSION['user'])) {
+        //     header('Location: ' . BASE_URL . '/auth/login');
+        //     exit();
+        // }
 
         $details = $this->model('Movie')->getMovieDetails($id);
         $reviews = $this->model('Movie')->getMovieReviews($id);
