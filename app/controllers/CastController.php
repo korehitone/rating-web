@@ -64,23 +64,31 @@ class CastController extends Controller
     {
         session_start();
 
-        if (isset($_SESSION['user']) && $_SESSION['user']['isAdmin'] === 0) {
-            header('Location: ' . BASE_URL);
-            exit();
-        }
-
-        if (!isset($_SESSION['user'])) {
+        if (!isset($_SESSION['user']) || (isset($_SESSION['user']) && $_SESSION['user']['isAdmin'] === 0)) {
             header('Location: ' . BASE_URL . '/auth/login');
             exit();
         }
 
+        // Get search keyword (default to empty string)
+        $keyword = $_POST['keyword'] ?? '';
+
+        // Fetch already assigned actor IDs for this movie
         $casts = $this->model('Movie')->getMovieCastsId($_SESSION['movieId']);
+        $castIds = array_column($casts, 'actor_id');
+
+        // Fetch actors (filtered by keyword if provided)
+        if (!empty($keyword)) {
+            $actors = $this->model('Actor')->searchActors($keyword);
+        } else {
+            $actors = $this->model('Actor')->getActors();
+        }
 
         $data = [
-            'actors' => $this->model('Actor')->getActors(),
-            'casts' => array_column($casts, 'actor_id'),
+            'actors' => $actors,
+            'casts' => $castIds,
             'categories' => $this->model('Category')->getCategories(),
-            'title' => "Movie Cast"
+            'title' => "Search Actors",
+            'keyword' => $keyword // optional: to keep the search term in the input field
         ];
 
         $this->view('includes/header', $data);

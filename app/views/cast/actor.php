@@ -4,6 +4,18 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fs-3 fw-bold mb-0">Actors</h2>
         </div>
+        <form class="d-flex align-items-center mb-4" method="post" action="<?= BASE_URL ?>/cast/actor">
+        <input 
+            type="search" 
+            class="form-control form-control-sm rounded-pill me-2 w-100 w-md-50" 
+            name="keyword" 
+            id="keyword"
+            value="<?= htmlspecialchars($data['keyword'] ?? '') ?>" 
+            placeholder="Search actors..." 
+            aria-label="Search" 
+            autocomplete="off">
+        <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill">Search</button>
+        </form>
 
         <div class="table-responsive rounded-3 overflow-hidden">
             <table class="table table-dark table-hover mb-0">
