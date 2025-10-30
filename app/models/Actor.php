@@ -56,4 +56,15 @@ class Actor extends Model
         $this->db->execute();
         return $this->db->rowCount();
     }
+
+    public function searchActors($keyword)
+    {
+        $sql = 'SELECT * FROM ' . $this->table . ' 
+                WHERE fullname LIKE :keyword 
+                ORDER BY fullname ASC';
+        
+        $this->db->query($sql);
+        $this->db->bind(':keyword', '%' . $keyword . '%');
+        return $this->db->resultSet();
+    }
 }
