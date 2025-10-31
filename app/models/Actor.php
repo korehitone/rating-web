@@ -12,9 +12,13 @@ class Actor extends Model
         return $this->db->single();
     }
 
-    public function getActors()
+    public function getActors($page = 1, $limit = 10)
     {
-        $this->db->query('SELECT * FROM ' . $this->table);
+        $offset = ($page - 1) * $limit;
+
+        $this->db->query('SELECT * FROM ' . $this->table . ' ORDER BY fullname ASC LIMIT :limit OFFSET :offset');
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        $this->db->bind(':offset', $offset, PDO::PARAM_INT);
         return $this->db->resultSet();
     }
 
@@ -23,6 +27,13 @@ class Actor extends Model
         $this->db->query('SELECT * FROM ' . $this->tableCastMovies . ' WHERE actor_id = :id');
         $this->db->bind('id', $id);
         return $this->db->resultSet();
+    }
+
+    public function getTotalActors()
+    {
+        $this->db->query('SELECT COUNT(*) as total FROM ' . $this->table);
+        $result = $this->db->single();
+        return $result ? $result['total'] : 0; 
     }
 
     public function update($data, $path = '')
@@ -57,14 +68,29 @@ class Actor extends Model
         return $this->db->rowCount();
     }
 
-    public function searchActors($keyword)
+
+    public function searchActors($keyword, $page = 1, $limit = 10)
     {
+        $offset = ($page - 1) * $limit;
+
         $sql = 'SELECT * FROM ' . $this->table . ' 
                 WHERE fullname LIKE :keyword 
-                ORDER BY fullname ASC';
-        
+                ORDER BY fullname ASC 
+                LIMIT :limit OFFSET :offset';
+
         $this->db->query($sql);
         $this->db->bind(':keyword', '%' . $keyword . '%');
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        $this->db->bind(':offset', $offset, PDO::PARAM_INT);
         return $this->db->resultSet();
+    }
+
+    public function getTotalSearchActors($keyword)
+    {
+        $sql = 'SELECT COUNT(*) as total FROM ' . $this->table . ' WHERE fullname LIKE :keyword';
+        $this->db->query($sql);
+        $this->db->bind(':keyword', '%' . $keyword . '%');
+        $result = $this->db->single();
+        return $result ? $result['total'] : 0; 
     }
 }
