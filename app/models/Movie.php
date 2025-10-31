@@ -38,12 +38,17 @@ class Movie extends Model
         return $this->db->resultSet();
     }
 
-    public function getMovieCasts($id)
+    public function getMovieCasts($id, $page = 1, $limit = 10)
     {
-        $this->db->query('SELECT * FROM ' . $this->tableMovieCasts . ' WHERE movie_id = :id');
+        $offset = ($page - 1) * $limit;
+    
+        $this->db->query('SELECT * FROM ' . $this->tableMovieCasts . ' WHERE movie_id = :id LIMIT :limit OFFSET :offset');
         $this->db->bind('id', $id);
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        $this->db->bind(':offset', $offset, PDO::PARAM_INT);
         return $this->db->resultSet();
     }
+
 
     public function getMovieDetails($id)
     {

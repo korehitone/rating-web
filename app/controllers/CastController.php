@@ -41,18 +41,36 @@ class CastController extends Controller
             exit();
         }
 
+         // Use $_GET for search and pagination (better UX)
+        // $keyword = trim($_GET['q'] ?? '');
+        $page = (int)($_GET['page'] ?? 1);
+        $page = max(1, $page);
+        $limit = 10;
+
+
         $details = $this->model('Movie')->getMovieDetails($id);
-        $casts = $this->model('Movie')->getMovieCasts($id);
+
+        $casts = $this->model('Movie')->getMovieCasts($id, $page, $limit);
+        $total = count($casts);
+
         $_SESSION['movieId'] = $details['id'];
 
+
         $date = new DateTime($details['release_year']);
+        $totalPages = ceil($total / $limit);
+        $previousPage = $page > 1 ? $page - 1 : 1;
+        $nextPage = $page < $totalPages ? $page + 1 : $totalPages;
 
         $data = [
             'casts' => $casts,
             'details' => $details,
             'release' => $date->format('F j, Y'),
             'categories' => $this->model('Category')->getCategories(),
-            'title' => "Movie Cast"
+            'title' => "Movie Cast",
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'previousPage' => $previousPage,
+            'nextPage' => $nextPage
         ];
 
         $this->view('includes/header', $data);

@@ -49,6 +49,7 @@ class MovieController extends Controller
             header('Location: ' . BASE_URL . '/auth/login');
             exit();
         }
+
         $data = [
             'movies' => $this->model('Movie')->getMoviesDetails(),
             'categories' => $this->model('Category')->getCategories(),
