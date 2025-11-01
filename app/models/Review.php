@@ -25,7 +25,7 @@ class Review extends Model
         $rating = $data['ratingSelect'];
         $review = htmlspecialchars($data['reviewComment']);
 
-        $this->db->query('UPDATE '. $this->table .' SET rating = :rt, review = :rv, created_at = :cr WHERE id = :id');
+        $this->db->query('UPDATE ' . $this->table . ' SET rating = :rt, review = :rv, created_at = :cr WHERE id = :id');
         $this->db->bind(':rt', $rating);
         $this->db->bind(':rv', $review);
         $this->db->bind(':cr', $createdDate);
@@ -34,8 +34,9 @@ class Review extends Model
         return $this->db->rowCount();
     }
 
-    public function delete($id){
-        $this->db->query('DELETE FROM '. $this->table . ' WHERE id = :id');
+    public function delete($id)
+    {
+        $this->db->query('DELETE FROM ' . $this->table . ' WHERE id = :id');
         $this->db->bind(':id', $id);
         $this->db->execute();
         return $this->db->rowCount();
@@ -50,10 +51,36 @@ class Review extends Model
         return $this->db->single();
     }
 
-    public function getReviews($userId){
-        $this->db->query('SELECT * FROM '.$this->tableUserReviews.' WHERE user_id = :uid');
+    public function getReviews($userId, $keyword, $page = 1, $limit = 10)
+    {
+        $offset = ($page - 1) * $limit;
+        $query = 'SELECT * FROM ' . $this->tableUserReviews . ' WHERE user_id = :uid LIMIT :limit OFFSET :offset';
+        if (!empty($keyword)) {
+            $query = 'SELECT * FROM ' . $this->tableUserReviews . ' WHERE user_id = :uid AND title  LIKE :keyword LIMIT :limit OFFSET :offset';
+        }
+        $this->db->query($query);
         $this->db->bind(':uid', $userId);
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        $this->db->bind(':offset', $offset, PDO::PARAM_INT);
+        if (!empty($keyword)) {
+            $this->db->bind(':keyword', '%' . $keyword . '%');
+        }
         $this->db->execute();
         return $this->db->resultSet();
+    }
+
+    public function getReviewsTotal($userId, $keyword)
+    {
+        $query = 'SELECT COUNT(*) as total FROM ' . $this->tableUserReviews . ' WHERE user_id = :uid';
+        if (!empty($keyword)) {
+            $query = 'SELECT COUNT(*) as total FROM ' . $this->tableUserReviews . ' WHERE user_id = :uid AND title  LIKE :keyword';
+        }
+        $this->db->query($query);
+        $this->db->bind('uid', $userId);
+        if (!empty($keyword)) {
+            $this->db->bind(':keyword', '%' . $keyword . '%');
+        }
+        $result = $this->db->single();
+        return $result ? $result['total'] : 0;
     }
 }
