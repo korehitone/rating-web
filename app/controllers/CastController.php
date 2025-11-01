@@ -16,10 +16,29 @@ class CastController extends Controller
             exit();
         }
 
+        // Use $_GET for search and pagination (better UX)
+        $keyword = trim($_GET['q'] ?? '');
+        $page = (int)($_GET['page'] ?? 1);
+        $page = max(1, $page);
+        $limit = 10;
+
+        // Initialize
+        $movies = $this->model('Movie')->getMovies($keyword, $page, $limit);
+        $total = $this->model('Movie')->getMoviesTotal($keyword);
+
+        $totalPages = ceil($total / $limit);
+        $previousPage = $page > 1 ? $page - 1 : 1;
+        $nextPage = $page < $totalPages ? $page + 1 : $totalPages;
+
         $data = [
-            'movies' => $this->model('Movie')->getMovies(),
+            'movies' => $movies,
             'categories' => $this->model('Category')->getCategories(),
             'title' => "Movies",
+            'keyword' => $keyword,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'previousPage' => $previousPage,
+            'nextPage' => $nextPage
         ];
 
         $this->view('includes/header', $data);
@@ -51,7 +70,7 @@ class CastController extends Controller
         $details = $this->model('Movie')->getMovieDetails($id);
 
         $casts = $this->model('Movie')->getMovieCasts($id, $page, $limit);
-        $total = count($casts);
+        $total = $this->model('Movie')->getMovieCastsTotal($id);
 
         $_SESSION['movieId'] = $details['id'];
 
@@ -70,7 +89,8 @@ class CastController extends Controller
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'previousPage' => $previousPage,
-            'nextPage' => $nextPage
+            'nextPage' => $nextPage,
+            'total' => $total
         ];
 
         $this->view('includes/header', $data);

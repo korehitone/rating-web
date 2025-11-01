@@ -126,7 +126,7 @@
                 <!-- Previous -->
                 <li class="page-item <?= $data['currentPage'] <= 1 ? 'disabled' : '' ?>">
                     <a class="page-link"
-                        href="page=<?= $data['currentPage'] - 1 ?>"
+                        href="?page=<?= $data['currentPage'] - 1 ?>"
                         aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
@@ -134,8 +134,8 @@
 
                 <!-- Page numbers -->
                 <?php for ($i = 1; $i <= $data['totalPages']; $i++): ?>
-                    <li class="?page-item <?= $i == $data['currentPage'] ? 'active' : '' ?>">
-                        <a class="page-link" href="page=<?= $i ?>">
+                    <li class="page-item <?= $i == $data['currentPage'] ? 'active' : '' ?>">
+                        <a class="page-link" href="?page=<?= $i ?>">
                             <?= $i ?>
                         </a>
                     </li>

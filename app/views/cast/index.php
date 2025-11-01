@@ -1,8 +1,15 @@
 <main class="flex-grow-1 p-3 p-md-5">
-    <form class="d-flex align-items-center mb-4" method="post" action="<?= BASE_URL ?>/home/search">
-        <input type="search" class="form-control form-control-sm rounded-pill me-2 w-100 w-md-50" name="keyword" id="keyword"
-            placeholder="Search movies..." aria-label="Search" autocomplete="off">
-        <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill" id="searchBtn">Search</button>
+    <form class="d-flex align-items-center mb-4" method="GET" action="<?= BASE_URL ?>/cast">
+        <input
+            type="search"
+            class="form-control form-control-sm rounded-pill me-2 w-100 w-md-50"
+            name="q"
+            id="keyword"
+            value="<?= htmlspecialchars($data['keyword'] ?? '') ?>"
+            placeholder="Search movies..."
+            aria-label="Search"
+            autocomplete="off">
+        <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill">Search</button>
     </form>
     <h2 class="fs-4 fw-bold mb-3">Movies</h2>
 
@@ -25,4 +32,37 @@
             <h4>No Movies Yet</h4>
         <?php endif ?>
     </div>
+
+    <?php if (isset($data['totalPages']) && $data['totalPages'] > 1): ?>
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <!-- Previous -->
+                <li class="page-item <?= $data['currentPage'] <= 1 ? 'disabled' : '' ?>">
+                    <a class="page-link"
+                        href="?q=<?= urlencode($data['keyword'] ?? '') ?>&page=<?= $data['currentPage'] - 1 ?>"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <!-- Page numbers -->
+                <?php for ($i = 1; $i <= $data['totalPages']; $i++): ?>
+                    <li class="page-item <?= $i == $data['currentPage'] ? 'active' : '' ?>">
+                        <a class="page-link" href="?q=<?= urlencode($data['keyword'] ?? '') ?>&page=<?= $i ?>">
+                            <?= $i ?>
+                        </a>
+                    </li>
+                <?php endfor; ?>
+
+                <!-- Next -->
+                <li class="page-item <?= $data['currentPage'] >= $data['totalPages'] ? 'disabled' : '' ?>">
+                    <a class="page-link"
+                        href="?q=<?= urlencode($data['keyword'] ?? '') ?>&page=<?= $data['currentPage'] + 1 ?>"
+                        aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    <?php endif; ?>
 </main>

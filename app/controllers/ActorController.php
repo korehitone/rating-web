@@ -20,9 +20,35 @@ class ActorController extends Controller
             header('Location: ' . BASE_URL . '/auth/login');
             exit();
         }
+
+        $keyword = trim($_GET['q'] ?? '');
+        $page = (int)($_GET['page'] ?? 1);
+        $page = max(1, $page);
+        $limit = 10;
+
+        $actors = [];
+        $total = 0;
+
+        if (!empty($keyword)) {
+            $actors = $this->model('Actor')->searchActors($keyword, $page, $limit);
+            $total = $this->model('Actor')->getTotalSearchActors($keyword);
+        } else {
+            $actors = $this->model('Actor')->getActors($page, $limit);
+            $total = $this->model('Actor')->getTotalActors();
+        }
+
+        $totalPages = ceil($total / $limit);
+        $previousPage = $page > 1 ? $page - 1 : 1;
+        $nextPage = $page < $totalPages ? $page + 1 : $totalPages;
+
         $data = [
-            'actors' => $this->model('Actor')->getActors(),
-            'title' => "Actor Admin"
+            'actors' => $actors,
+            'title' => "Actor Admin",
+            'keyword' => $keyword,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'previousPage' => $previousPage,
+            'nextPage' => $nextPage
         ];
         $this->view('includes/header', $data);
         $this->view('actor/admin', $data);

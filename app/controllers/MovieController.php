@@ -50,10 +50,29 @@ class MovieController extends Controller
             exit();
         }
 
+        // Use $_GET for search and pagination (better UX)
+        $keyword = trim($_GET['q'] ?? '');
+        $page = (int)($_GET['page'] ?? 1);
+        $page = max(1, $page);
+        $limit = 10;
+
+        // Initialize
+        $movies = $this->model('Movie')->getMoviesDetails($keyword, $page, $limit);
+        $total = $this->model('Movie')->getMoviesDetailsTotal($keyword);
+
+        $totalPages = ceil($total / $limit);
+        $previousPage = $page > 1 ? $page - 1 : 1;
+        $nextPage = $page < $totalPages ? $page + 1 : $totalPages;
+
         $data = [
-            'movies' => $this->model('Movie')->getMoviesDetails(),
+            'movies' => $movies,
             'categories' => $this->model('Category')->getCategories(),
             'title' => "Movie - Admin",
+            'keyword' => $keyword,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'previousPage' => $previousPage,
+            'nextPage' => $nextPage
         ];
         $this->view('includes/header', $data);
         $this->view('movie/admin', $data);
@@ -105,12 +124,40 @@ class MovieController extends Controller
 
     public function category($id)
     {
-        $a = $this->model('Movie')->getCategoryMovies($id);
+        // $a = $this->model('Movie')->getCategoryMovies($id);
+
+        // Use $_GET for search and pagination (better UX)
+        $keyword = trim($_GET['q'] ?? '');
+        $page = (int)($_GET['page'] ?? 1);
+        $page = max(1, $page);
+        $limit = 10;
+
+        // Initialize
+        $movies = $this->model('Movie')->getCategoryMovies($id, $keyword, $page, $limit);
+        $total = $this->model('Movie')->getCategoryMoviesTotal($id, $keyword);
+
+        $totalPages = ceil($total / $limit);
+        $previousPage = $page > 1 ? $page - 1 : 1;
+        $nextPage = $page < $totalPages ? $page + 1 : $totalPages;
+
+        $categories = $this->model('Category')->getCategories();
+
+        $idName = array_column($categories, 'name', 'id');
+        $name = $idName[$id] ?? null;
+
+
 
         $data = [
-            'movies' => $a,
-            'categories' => $this->model('Category')->getCategories(),
-            'title' => "Category - " . $a[0]['name'],
+            'movies' => $movies,
+            'categories' => $categories,
+            'cid' => $id,
+            'title' => "Category - " . $name,
+            'category' => $name,
+            'keyword' => $keyword,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'previousPage' => $previousPage,
+            'nextPage' => $nextPage
         ];
 
         $this->view('includes/header', $data);
