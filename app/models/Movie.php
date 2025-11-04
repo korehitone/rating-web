@@ -10,21 +10,35 @@ class Movie extends Model
     private $tableMovieCasts = "movie_casts"; // view movie_casts
     private $tableCastMovie = "cast_movie"; // table cast_movie
 
-    public function getMovies()
+    public function getMovies($keyword, $page = 1, $limit = 10)
     {
-        $this->db->query('SELECT * FROM ' . $this->tableMovie); // select semua dari view list_movies
+        $offset = ($page - 1) * $limit;
+        $query = 'SELECT * FROM ' . $this->tableMovie . ' LIMIT :limit OFFSET :offset';
+        if (!empty($keyword)) {
+            $query = 'SELECT * FROM ' . $this->tableMovie . ' WHERE title LIKE :keyword LIMIT :limit OFFSET :offset';
+        }
+        $this->db->query($query); // select semua dari view list_movies
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        $this->db->bind(':offset', $offset, PDO::PARAM_INT);
+        if (!empty($keyword)) {
+            $this->db->bind(':keyword', '%' . $keyword . '%');
+        }
         return $this->db->resultSet(); // kembalikan hasilnya (dari select tadi)
     }
 
-    public function searchMovies()
+    public function searchMovies($page = 1, $limit = 10)
     {
+        $offset = ($page - 1) * $limit;
+
         $keyword = $_POST['keyword']; // ambil data post keyword dari form html
-        $query = "SELECT * FROM " . $this->tableMovie . ' WHERE title LIKE :keyword'; // query select semua dari list_movies dimana titlenya sesuai
+        $query = "SELECT * FROM " . $this->tableMovie . ' WHERE title LIKE :keyword LIMIT :limit OFFSET :offset'; // query select semua dari list_movies dimana titlenya sesuai
         if (isset($_POST['cId'])) { // kalo data post category id ada
-            $query = "SELECT * FROM " . $this->tableMovie . ' WHERE title LIKE :keyword AND categories_id = :cid'; // selectnya ditambah dimana categori idnya sesuai
+            $query = "SELECT * FROM " . $this->tableMovie . ' WHERE title LIKE :keyword AND categories_id = :cid LIMIT :limit OFFSET :offset'; // selectnya ditambah dimana categori idnya sesuai
         }
         $this->db->query($query); // set query
         $this->db->bind(':keyword', "%$keyword%"); // isi :keyword di query dengan value, contohnya keyword diisi $keyword
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        $this->db->bind(':offset', $offset, PDO::PARAM_INT);
         if (isset($_POST['cId'])) { // kalo data post category id ada
             $cid = $_POST['cId'];
             $this->db->bind(':cid', $cid); // isi :cid di queri dengan value
@@ -32,18 +46,70 @@ class Movie extends Model
         return $this->db->resultSet(); // kembalikan nilai beberapa data
     }
 
-    public function getMoviesDetails()
+    public function getMoviesTotal($keyword)
     {
-        $this->db->query('SELECT * FROM ' . $this->tableMovieDetails);
+        $query = 'SELECT COUNT(*) as total FROM ' . $this->tableMovie;
+        if (!empty($keyword)) {
+            $query = 'SELECT COUNT(*) as total FROM ' . $this->tableMovie . ' WHERE title LIKE :keyword';
+        }
+        $this->db->query($query);
+        if (!empty($keyword)) {
+            $this->db->bind(':keyword', '%' . $keyword . '%');
+        }
+        $result = $this->db->single();
+        return $result ? $result['total'] : 0;
+    }
+
+    public function getMoviesDetails($keyword, $page = 1, $limit = 10)
+    {
+        $offset = ($page - 1) * $limit;
+
+        $query = 'SELECT * FROM ' . $this->tableMovieDetails . ' LIMIT :limit OFFSET :offset';
+        if (!empty($keyword)) {
+            $query = 'SELECT * FROM ' . $this->tableMovieDetails . ' WHERE title LIKE :keyword LIMIT :limit OFFSET :offset';
+        }
+        $this->db->query($query);
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        $this->db->bind(':offset', $offset, PDO::PARAM_INT);
+        if (!empty($keyword)) {
+            $this->db->bind(':keyword', '%' . $keyword . '%');
+        }
         return $this->db->resultSet();
     }
 
-    public function getMovieCasts($id)
+    public function getMoviesDetailsTotal($keyword)
     {
-        $this->db->query('SELECT * FROM ' . $this->tableMovieCasts . ' WHERE movie_id = :id');
+        $query = 'SELECT COUNT(*) as total FROM ' . $this->tableMovieDetails;
+        if (!empty($keyword)) {
+            $query = 'SELECT COUNT(*) as total FROM ' . $this->tableMovieDetails . ' WHERE title LIKE :keyword';
+        }
+        $this->db->query($query);
+        if (!empty($keyword)) {
+            $this->db->bind(':keyword', '%' . $keyword . '%');
+        }
+        $result = $this->db->single();
+        return $result ? $result['total'] : 0;
+    }
+
+    public function getMovieCasts($id, $page = 1, $limit = 10)
+    {
+        $offset = ($page - 1) * $limit;
+
+        $this->db->query('SELECT * FROM ' . $this->tableMovieCasts . ' WHERE movie_id = :id LIMIT :limit OFFSET :offset');
         $this->db->bind('id', $id);
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        $this->db->bind(':offset', $offset, PDO::PARAM_INT);
         return $this->db->resultSet();
     }
+
+    public function getMovieCastsTotal($id)
+    {
+        $this->db->query('SELECT COUNT(*) as total FROM ' . $this->tableMovieCasts . ' WHERE movie_id = :id');
+        $this->db->bind(':id', $id);
+        $result = $this->db->single();
+        return $result ? $result['total'] : 0;
+    }
+
 
     public function getMovieDetails($id)
     {
@@ -59,11 +125,36 @@ class Movie extends Model
         return $this->db->resultSet();
     }
 
-    public function getCategoryMovies($id)
+    public function getCategoryMovies($id, $keyword, $page = 1, $limit = 10)
     {
-        $this->db->query('SELECT * FROM ' . $this->tableMovie . ' WHERE categories_id = :id');
+        $offset = ($page - 1) * $limit;
+        $query = 'SELECT * FROM ' . $this->tableMovie . ' WHERE categories_id = :id LIMIT :limit OFFSET :offset';
+        if (!empty($keyword)) {
+            $query = 'SELECT * FROM ' . $this->tableMovie . ' WHERE categories_id = :id AND title  LIKE :keyword LIMIT :limit OFFSET :offset';
+        }
+        $this->db->query($query);
         $this->db->bind('id', $id);
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        $this->db->bind(':offset', $offset, PDO::PARAM_INT);
+        if (!empty($keyword)) {
+            $this->db->bind(':keyword', '%' . $keyword . '%');
+        }
         return $this->db->resultSet();
+    }
+
+    public function getCategoryMoviesTotal($id, $keyword)
+    {
+        $query = 'SELECT COUNT(*) as total FROM ' . $this->tableMovie. ' WHERE categories_id = :id';
+        if (!empty($keyword)) {
+            $query = 'SELECT COUNT(*) as total FROM ' . $this->tableMovie . ' WHERE categories_id = :id AND title  LIKE :keyword';
+        }
+        $this->db->query($query);
+        $this->db->bind('id', $id);
+        if (!empty($keyword)) {
+            $this->db->bind(':keyword', '%' . $keyword . '%');
+        }
+        $result = $this->db->single();
+        return $result ? $result['total'] : 0;
     }
 
     public function update($data, $path = '')
@@ -132,8 +223,9 @@ class Movie extends Model
         return $this->db->resultSet();
     }
 
-    public function deleteCast($id){
-        $this->db->query('DELETE FROM '. $this->tableCastMovie . ' WHERE id = :id');
+    public function deleteCast($id)
+    {
+        $this->db->query('DELETE FROM ' . $this->tableCastMovie . ' WHERE id = :id');
         $this->db->bind(':id', $id);
         $this->db->execute();
         return $this->db->rowCount();

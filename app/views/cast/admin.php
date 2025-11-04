@@ -24,7 +24,7 @@
             <h2 class="fs-3 fw-bold mb-0">Casts</h2>
             <a class="btn btn-primary px-4" href="<?= BASE_URL ?>/cast/actor">
                 Add Cast
-                </a>
+            </a>
         </div>
 
         <!-- Responsive Table -->
@@ -68,7 +68,7 @@
                                             <form id="editForm" action="<?= BASE_URL ?>/cast/update" enctype="multipart/form-data" method="post" onsubmit="return checkForm()">
                                                 <input type="hidden" id="editId" name="editId" value="<?= $d['id'] ?>">
                                                 <input type="hidden" id="movieId" name="movieId" value="<?= $d['movie_id'] ?>">
-                                                 <div class="mb-3">
+                                                <div class="mb-3">
                                                     <label for="fullname" class="form-label">Play As</label>
                                                     <input type="text" disabled class="form-control" id="fullname" name="fullname" value="<?= $d['fullname'] ?>">
                                                 </div>
@@ -119,6 +119,39 @@
             </table>
         </div>
     </div>
+
+    <?php if (isset($data['totalPages']) && $data['totalPages'] > 1): ?>
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <!-- Previous -->
+                <li class="page-item <?= $data['currentPage'] <= 1 ? 'disabled' : '' ?>">
+                    <a class="page-link"
+                        href="?page=<?= $data['currentPage'] - 1 ?>"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <!-- Page numbers -->
+                <?php for ($i = 1; $i <= $data['totalPages']; $i++): ?>
+                    <li class="page-item <?= $i == $data['currentPage'] ? 'active' : '' ?>">
+                        <a class="page-link" href="?page=<?= $i ?>">
+                            <?= $i ?>
+                        </a>
+                    </li>
+                <?php endfor; ?>
+
+                <!-- Next -->
+                <li class="page-item <?= $data['currentPage'] >= $data['totalPages'] ? 'disabled' : '' ?>">
+                    <a class="page-link"
+                        href="?page=<?= $data['currentPage'] + 1 ?>"
+                        aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    <?php endif; ?>
 
 </main>
 
