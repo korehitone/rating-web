@@ -1,0 +1,69 @@
+services:
+  nginx:
+    build:
+      context: .                    # Build dari direktori saat ini
+      dockerfile: Dockerfile.nginx  # Pakai Dockerfile khusus nginx
+    container_name: php-rating-nginx
+    ports:
+      - "8080:80"                   # Port 8080 di host -> port 80 di container
+    depends_on:
+      - php                         # Tunggu PHP container siap dulu
+    volumes:
+      - .:/var/www/html          # Mount project folder ke container
+    networks:
+      - rating-network
+
+  php:
+    build: .
+    container_name: php-rating-php
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASS}
+    volumes:
+      - .:/var/www/html 
+    networks:
+      - rating-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: php-rating-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS} 
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./ratingfilm.sql:/docker-entrypoint-initdb.d/ratingfilm.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - rating-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8081:80"
+    container_name: php-rating-phpmyadmin
+    environment:
+      - PMA_HOST=${DB_HOST}
+      - PMA_USER=${DB_ROOT}           # Default user buat login
+      - PMA_PASSWORD=${DB_ROOT_PASS} # Default password
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASS}
+    depends_on:
+      - mysql
+    networks:
+      - rating-network
+
+volumes:
+  mysql_data:
+    driver: local
+  
+networks:
+  rating-network:
+    driver: bridge
