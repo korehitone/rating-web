@@ -10,16 +10,28 @@ class App
     {
 
         $url = $this->parseURL();
+
         // controller
-        if (file_exists('../app/controllers/' . $url[0] . 'Controller.php')) {
-            $this->controller = $url[0];
-            $this->controller .= 'Controller';
-            unset($url[0]);
+        // if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/app/controllers/' . $url[0] . 'Controller.php')) {
+        //     $this->controller = $url[0];
+        //     $this->controller .= 'Controller';
+        //     unset($url[0]);
+        // } else {
+        //     $this->controller .= 'Controller';
+        // }
+        if (!empty($url)) {
+            $controllerName = ucfirst(strtolower($url[0])); // Capitalize first letter
+            if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/app/controllers/' . $controllerName . 'Controller.php')) {
+                $this->controller = $controllerName . 'Controller';
+                unset($url[0]);
+            } else {
+                $this->controller .= 'Controller';
+            }
         } else {
             $this->controller .= 'Controller';
         }
 
-        require_once '../app/controllers/' . $this->controller . '.php';
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/app/controllers/' . $this->controller . '.php';
         $this->controller = new $this->controller;
 
         // method
@@ -42,13 +54,14 @@ class App
     public function parseURL()
     {
         if (isset($_GET['url'])) {
-            $url = rtrim($_GET['url'], '/');
+            $url = trim($_GET['url'], '/');
             $url = filter_var($url, FILTER_SANITIZE_URL);
-            $url = explode('/', $url);
-            return $url;
+            
+            // $url = array_filter($url);
+            // $url = array_values($url);
+            return explode('/', $url);
         } else {
-            $url[0] = $this->controller;
-            return $url;
+            return [];
         }
     }
 }
