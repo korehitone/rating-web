@@ -36,7 +36,6 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASS}
-      MYSQL_ALLOW_EMPTY_PASSWORD: yes
     volumes:
       - mysql_data:/var/lib/mysql
       - ./ratingfilm.sql:/docker-entrypoint-initdb.d/ratingfilm.sql
@@ -54,7 +53,6 @@ services:
       - PMA_HOST=${DB_HOST}
       - PMA_USER=${DB_ROOT}           # Default user buat login
       - PMA_PASSWORD=${DB_ROOT_PASS} # Default password
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASS}
     depends_on:
       - mysql
     networks:

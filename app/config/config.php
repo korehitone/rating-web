@@ -7,6 +7,6 @@ define('MOVIE_PATH', $_SERVER['DOCUMENT_ROOT'].'/rating-web/app/resource/movie/'
 define('ACTOR_PATH', $_SERVER['DOCUMENT_ROOT'].'/rating-web/app/resource/actor/'); // path menyimpan gambar actor
 
 define('DB_HOST', 'mysql'); // host database
-define('DB_USER', 'root'); // user database
-define('DB_PASS', ''); // password database
+define('DB_USER', 'uiai'); // user database
+define('DB_PASS', 'umazing'); // password database
 define('DB_NAME', 'ratingfilm'); // nama database
