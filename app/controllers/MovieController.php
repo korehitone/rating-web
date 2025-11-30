@@ -12,6 +12,8 @@ class MovieController extends Controller
             exit();
         }
 
+        // echo MOVIE_PATH;
+
         // if (!isset($_SESSION['user'])) {
         //     header('Location: ' . BASE_URL . '/auth/login');
         //     exit();
@@ -90,13 +92,34 @@ class MovieController extends Controller
                 $temp = explode('.', $_FILES['editCover']['name']);
                 $ext = end($temp);
                 $path_base = MOVIE_PATH . $_POST['editFilmId'];
+                $baseMoviePath = dirname(MOVIE_PATH);
 
                 $file_tmp_name = $_FILES['editCover']['tmp_name'];
                 $filename = "cover." . $ext;
 
-                if (!is_dir($path_base)) {
-                    mkdir($path_base, 0777, true);
+                if (!is_dir($baseMoviePath)) {
+                    if (!mkdir($baseMoviePath, 0755, true)) {
+                        error_log("Failed to create base movie directory: $baseMoviePath");
+                        // Handle error gracefully (e.g., show user message instead of dying)
+                        die("Upload failed: Unable to create directory.");
+                    };
                 }
+
+                if (!is_writable($baseMoviePath)) {
+                    error_log("Base movie directory not writable: $baseMoviePath");
+                    die("Upload failed: Directory not writable.");
+                }
+
+                if (!is_dir($path_base)) {
+                    if (!mkdir($path_base, 0755)) {
+                        error_log("Failed to create movie directory: $path_base");
+                        die("Upload failed: Unable to create directory.");
+                    };
+                }
+
+                // if (!is_dir($path_base)) {
+                //     mkdir($path_base, 0777);
+                // }
 
                 if (file_exists($path_base . '/' . $filename)) {
                     unlink($path_base . '/' . $filename);
