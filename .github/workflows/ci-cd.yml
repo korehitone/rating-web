@@ -73,10 +73,10 @@ jobs:
       if: always()  # Selalu jalankan step ini (sukses atau gagal)
       run: |
         if [ ${{ job.status }} == 'success' ]; then
-          echo "✅ Deployment berhasil di laptop-andi! Aplikasi sudah update ke versi terbaru"
+          echo "✅ Deployment berhasil di debian_work! Aplikasi sudah update ke versi terbaru"
         else
-          echo "❌ Deployment gagal di laptop-andi! Cek log error di atas"
-          echo "✅ Deployment berhasil di laptop-hudya! Aplikasi sudah update ke versi terbaru"
+          echo "❌ Deployment gagal di debian_work! Cek log error di atas"
+          echo "✅ Deployment berhasil di debian_work! Aplikasi sudah update ke versi terbaru"
         else
-          echo "❌ Deployment gagal di laptop-hudya! Cek log error di atas"
+          echo "❌ Deployment gagal di debian_work! Cek log error di atas"
         fi
