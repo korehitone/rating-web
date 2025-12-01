@@ -33,7 +33,7 @@ jobs:
     - name: Pull latest changes
       working-directory: ${{ env.PROJECT_PATH }}
       run: |
-        git remote set-url origin https://github.com/korehitone/rating-web.git
+        git remote set-url origin https://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@github.com/korehitone/rating-web.git
         git fetch origin main      # Download update terbaru
         git reset --hard origin/main  # Reset ke versi terbaru (hapus perubahan lokal)
         
