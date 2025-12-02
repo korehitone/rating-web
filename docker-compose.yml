@@ -9,7 +9,7 @@ services:
     depends_on:
       - php                         # Tunggu PHP container siap dulu
     volumes:
-      - .:/var/www/html          # Mount project folder ke container
+      - .:/var/www/html
     networks:
       - rating-network
 
@@ -25,6 +25,7 @@ services:
       - DB_PASSWORD=${DB_PASS}
     volumes:
       - .:/var/www/html 
+    user: "${HOST_UID}:${HOST_GID}"
     networks:
       - rating-network
 
