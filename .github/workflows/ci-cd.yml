@@ -86,7 +86,7 @@ jobs:
     # Step 0: Detect project path dynamically
     - name: Set project path
       run: |
-        PROJECT_PATH=$(find /home -name 'rating-web' -type d -not -path '*/runner-project3/*' 2>/dev/null | head -1)
+        PROJECT_PATH=$(find /home -name 'rating-web' -type d -not -path '*/actions-runner/*' 2>/dev/null | head -1)
         if [ -z "$PROJECT_PATH" ]; then
           echo "❌ Error: Folder rating-web tidak ditemukan di /home"
           echo "Pastikan project sudah di-clone ke salah satu user directory"
